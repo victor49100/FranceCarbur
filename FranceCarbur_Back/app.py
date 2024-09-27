@@ -1,10 +1,11 @@
 from flask import Flask, jsonify
 import psycopg2
 from psycopg2 import OperationalError
+from flask import Flask, render_template
 from dotenv import load_dotenv
 import os
 
-# Charger les variables d'environnement à partir du fichier .env
+# Chargement des variables d'environnement à partir du fichier .env
 load_dotenv()
 
 app = Flask(__name__)
@@ -41,6 +42,12 @@ def fetch_user_by_id(user_id):
         return {'error': f'Erreur de connexion : {e}'}
     except Exception as e:
         return {'error': f'Une erreur s\'est produite : {e}'}
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('home.html')
+
+
 
 @app.route('/app/api/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):

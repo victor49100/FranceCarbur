@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groovy Baby - API Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #306998, #FFD43B);
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 50px;
+            border-radius: 15px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+        }
+
+        .logo {
+            margin: 20px;
+            width: 150px;
+            height: auto;
+        }
+
+        p {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            font-weight: 300;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: #ffffffcc;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Utilisation du fichier SVG -->
+    <img src="{{ url_for('static', filename='images/flask_logo.svg') }}" alt="Flask Logo" class="logo">
+    <h1>Groovy Baby!</h1>
+    <p>Bienvenue sur votre API Flask.</p>
+</div>
+
+<div class="footer">
+    <p>Powered by Flask - Build with Python</p>
+</div>
+</body>
+</html>
