@@ -1,0 +1,59 @@
+body {
+  background: repeating-linear-gradient(
+    to right, 
+    #71a6db 0,   /* Bleu pastel */
+    #71a6db 33.33%,  /* 1/3 de la largeur est bleu pastel */
+    #ffffff 33.33%, 
+    #ffffff 66.66%, /* 1/3 de la largeur est blanc */
+    #e05050 66.66%, 
+    #e05050 100%     /* 1/3 de la largeur est rouge pastel */
+  );
+
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: white;
+  font-family: "Bahnschrift";
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+}
+.form-box {
+  width: 380px;
+  height: 450px;
+  background-color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  opacity: 1;
+  border-radius: 3%;
+}
+.header-form {
+  margin-bottom: 15px;
+}
+button {
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+.message {
+  display: flex;
+  justify-content: space-between;
+}
+
+h1#Titre {
+  color: black;
+  text-align: center; /* Centre le texte horizontalement */
+  position: absolute;  /* Permet de positionner absolument au centre */
+  top: 200px;  /* Ajuster la distance du haut de la page */
+  left: 50%;  /* Centre horizontalement */
+  transform: translateX(-50%); /* Ajustement pour garder au centre exact */
+  font-size: 5rem;
+  margin: 0;
+  padding: 10px;
+}
