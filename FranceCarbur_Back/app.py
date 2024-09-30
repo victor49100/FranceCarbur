@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2 import OperationalError
 from flask import Flask, render_template
 from dotenv import load_dotenv
+import hashlib
 import os
 
 # Chargement des variables d'environnement à partir du fichier .env
@@ -67,11 +68,9 @@ def update_newPassword_by_id(id, newPassword):
 # ROUTES
 
 # GET
-
 @app.route('/', methods=['GET'])
 def index():
     return render_template('home.html')
-
 
 @app.route('/api/user', methods=['GET'])
 def get_user():
@@ -105,9 +104,16 @@ def get_user():
 def update_password():
     args = request.args
     user_id = args.get('user_id')
+    
     new_password = args.get('new_password')
+    salt = 'sel'
+    # Adding salt at the last of the password
+    dataBase_password = new_password+salt
+    # Encoding the password
+    hashed = hashlib.sha256(dataBase_password.encode())
+
     if request.method == 'PUT':
-        update = update_newPassword_by_id(user_id, new_password)
+        update = update_newPassword_by_id(user_id, hashed.hexdigest())
         if isinstance(update, dict) and 'error' in update:
             return jsonify(update), 404
         return jsonify({'OK': 'Changement réussi'})
