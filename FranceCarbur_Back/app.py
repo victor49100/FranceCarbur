@@ -7,6 +7,8 @@ import os
 import requests
 import folium
 from folium.plugins import MarkerCluster  # Import du module pour le clustering
+import json
+
 
 # Chargement des variables d'environnement à partir du fichier .env
 load_dotenv()
@@ -47,12 +49,50 @@ def show_map():
     # Création du cluster
     marker_cluster = MarkerCluster().add_to(france_map)
 
-    # Ajout des stations de carburant à partir du fichier GeoJSON
-    folium.GeoJson(
-        geojson_path,
-        name="Stations",
-        popup=lambda feature: feature['properties'].get('nom', 'Station de carburant')  # Ajouter des popups si besoin
-    ).add_to(marker_cluster)
+    # Lecture du fichier GeoJSON
+    with open(geojson_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # Boucle sur chaque station pour ajouter les marqueurs et les popups avec les prix
+    for feature in data['features']:
+        # Récupération des coordonnées
+        coords = feature['geometry']['coordinates'][1], feature['geometry']['coordinates'][0]
+
+        # Récupération des informations de la station
+        station_name = feature['properties'].get('nom', 'Station de carburant')
+
+        # Extraction et traitement des prix (conversion JSON)
+        prix_raw = feature['properties'].get('prix')  # Récupérer la clé 'prix'
+        if prix_raw:  # Vérifier si prix_raw n'est ni None ni vide
+            try:
+                prix_list = json.loads(prix_raw)  # Conversion de la chaîne JSON en liste de dictionnaires
+            except json.JSONDecodeError:
+                prix_list = []  # En cas d'erreur de conversion, définir une liste vide
+        else:
+            prix_list = []  # Si 'prix' est None ou absent, définir une liste vide
+
+        # Construction du contenu du popup avec les prix
+        prix_info = ""
+        if prix_list:
+            for prix in prix_list:
+                # Vérifiez que chaque élément est un dictionnaire avant d'utiliser `.get()`
+                if isinstance(prix, dict):
+                    nom_carburant = prix.get('@nom', 'Inconnu')
+                    valeur = prix.get('@valeur', 'N/A')
+                    prix_info += f"{nom_carburant}: {valeur} €/L<br>"
+                else:
+                    prix_info += "Donnée de prix incorrecte<br>"
+        else:
+            prix_info = "Prix non disponible"
+
+        # Création du popup
+        popup_content = f"<b>{station_name}</b><br>{prix_info}"
+
+        # Ajout du marqueur au cluster
+        folium.Marker(
+            location=coords,
+            popup=popup_content
+        ).add_to(marker_cluster)
 
     # Sauvegarde de la carte dans un fichier HTML
     map_path = "templates/map.html"
@@ -60,6 +100,8 @@ def show_map():
 
     # Rendre la carte
     return render_template("map.html")
+
+
 
 
 # Fonctions pour la gestion de la base de données
