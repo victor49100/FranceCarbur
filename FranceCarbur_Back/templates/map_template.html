@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte avec filtres</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <style>
+        .filter-bar {
+            background-color: white;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .filter-bar label {
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .filter-bar input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre des filtres -->
+    <div class="filter-bar">
+        <label><input type="checkbox" id="filter-gazole" checked> Gazole</label>
+        <label><input type="checkbox" id="filter-sp95" checked> SP95</label>
+        <label><input type="checkbox" id="filter-sp98" checked> SP98</label>
+        <label><input type="checkbox" id="filter-e10" checked> E10</label>
+        <label><input type="checkbox" id="filter-e85" checked> E85</label>
+        <label><input type="checkbox" id="filter-gplc" checked> GPLC</label>
+    </div>
+
+    <!-- Conteneur pour la carte -->
+    <div id="map"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialisation de la carte
+        const map = L.map('map').setView([46.603354, 1.888334], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+
+        // Données des stations injectées depuis Flask
+        const stations = {{ stations | safe }};
+
+        // Gestion des filtres
+        const filters = {
+            Gazole: true,
+            SP95: true,
+            SP98: true,
+            E10: true,
+            E85: true,
+            GPLC: true,
+        };
+
+        // Création d'un groupe de marqueurs
+        const markerGroup = L.layerGroup().addTo(map);
+
+        // Fonction pour ajouter les marqueurs filtrés
+        const updateMarkers = () => {
+            // Nettoyer les anciens marqueurs
+            markerGroup.clearLayers();
+
+            // Ajouter les stations correspondant aux filtres
+            stations.forEach(station => {
+                const prix = station.prix;
+                const hasAvailableFuel = prix.some(fuel =>
+                    filters[fuel['@nom']] && fuel['@valeur']
+                );
+
+                if (hasAvailableFuel) {
+                    const popupContent = `
+                        <b>${station.nom}</b><br>
+                        <ul>
+                            ${prix
+                                .filter(fuel => filters[fuel['@nom']])
+                                .map(fuel => `<li>${fuel['@nom']}: ${fuel['@valeur']} €/L</li>`)
+                                .join('')}
+                        </ul>
+                    `;
+                    L.marker([station.latitude, station.longitude])
+                        .bindPopup(popupContent)
+                        .addTo(markerGroup);
+                }
+            });
+        };
+
+        // Initialisation des marqueurs
+        updateMarkers();
+
+        // Écouteurs pour les changements de filtres
+        document.querySelectorAll('.filter-bar input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const fuelType = checkbox.id.replace('filter-', '');
+                filters[fuelType] = checkbox.checked;
+                updateMarkers();
+            });
+        });
+    </script>
+</body>
+</html>

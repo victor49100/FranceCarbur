@@ -57,3 +57,100 @@ h1#Titre {
     margin: 0;
     padding: 10px;
 }
+
+
+.popup-content {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    display: inline-block;
+    padding: 10px;
+    word-wrap: break-word;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    width: 400px;
+}
+
+
+.popup-content b {
+    font-size: 16px;
+    color: #000;
+}
+
+.popup-content ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.popup-content li {
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.popup-content li.available {
+    color: green;
+    font-weight: bold;
+}
+
+.popup-content li.unavailable {
+    color: gray;
+    text-decoration: line-through;
+}
+
+.popup-content li.no-data {
+    color: red;
+}
+
+
+
+.filter-bar {
+  background-color: white;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.filter-bar label {
+  margin-right: 15px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#map-container {
+  height: 600px;
+  width: 100%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.filter-bar {
+    background-color: white;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.filter-bar label {
+    margin-right: 15px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.filter-bar input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#map {
+    height: 600px;
+    width: 100%;
+}
+

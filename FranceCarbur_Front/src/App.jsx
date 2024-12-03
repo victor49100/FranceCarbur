@@ -1,22 +1,21 @@
 // App.jsx
 import {
-    BrowserRouter as Router,
-    Routes,
-    Route
-} from "react-router-dom";
-import Accueil from './accueil/Accueil';
-import Invite from './invite/Invite';
-
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from 'react-router-dom';
+import Accueil from './Accueil';
+import Carte from './Carte'; // Import du nouveau composant
 
 const App = () => {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Accueil />} />
-                <Route path="/invite" element={< Invite />} /> {}
-            </Routes>
-        </Router>
-    );
-}
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Accueil />} />
+        <Route path="/carte" element={<Carte />} /> {/* Nouvelle route pour la carte */}
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
