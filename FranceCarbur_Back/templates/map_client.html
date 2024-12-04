@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Stations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.Default.css" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #map {
+            height: 600px; /* Hauteur spécifique pour la carte */
+            width: 100%; /* Largeur pleine */
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Carte des Stations de Carburant</h1>
+        <form id="filters-form">
+            <h4>Filtres :</h4>
+            <div class="form-check">
+                {% for fuel in fuels %}
+                <div class="mb-2">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="fuel_types"
+                        value="{{ fuel }}"
+                        id="fuel-{{ fuel }}">
+                    <label class="form-check-label" for="fuel-{{ fuel }}">{{ fuel }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="apply-filters" class="btn btn-primary mt-3">Appliquer les filtres</button>
+        </form>
+        <div id="map" class="mt-4"></div>
+    </div>
+    <script>
+        // Variables globales
+        let map, markerCluster, geojsonData;
+
+        // Initialisation de la carte
+        function initMap() {
+            if (map) {
+                map.remove(); // Supprime la carte existante si elle est déjà initialisée
+            }
+
+            map = L.map('map').setView([46.603354, 1.888334], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            markerCluster = L.markerClusterGroup();
+            map.addLayer(markerCluster);
+        }
+
+        // Chargement des données GeoJSON
+        async function loadGeoJSON() {
+            const response = await fetch('/geojson-data');
+            geojsonData = await response.json();
+            applyFilters(); // Charger la carte avec les données par défaut
+        }
+
+        // Application des filtres
+        function applyFilters() {
+            const selectedFuels = Array.from(document.querySelectorAll('input[name="fuel_types"]:checked'))
+                .map(input => input.value);
+
+            markerCluster.clearLayers(); // Nettoyer les marqueurs existants
+
+            geojsonData.features.forEach(feature => {
+                const coords = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
+                const stationName = feature.properties.nom || 'Station de carburant';
+                const prixRaw = feature.properties.prix;
+
+                let prixList = [];
+                if (prixRaw) {
+                    try {
+                        prixList = JSON.parse(prixRaw);
+                    } catch (e) {
+                        prixList = [];
+                    }
+                }
+
+                let popupContent = `<b>${stationName}</b><ul style="list-style:none; padding:0;">`;
+                let displayStation = false;
+
+                prixList.forEach(prix => {
+                    const fuelName = prix['@nom'];
+                    const fuelValue = prix['@valeur'];
+
+                    if (!selectedFuels.length || selectedFuels.includes(fuelName)) {
+                        displayStation = true;
+                        popupContent += `<li>${fuelName}: ${fuelValue ? `${fuelValue} €/L` : 'Indisponible'}</li>`;
+                    }
+                });
+
+                popupContent += '</ul>';
+
+                if (displayStation) {
+                    const marker = L.marker(coords).bindPopup(popupContent);
+                    markerCluster.addLayer(marker);
+                }
+            });
+
+            map.invalidateSize(true); // Forcer la mise à jour après application des filtres
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            loadGeoJSON();
+
+            // Forcer le redimensionnement de la carte après son chargement
+            setTimeout(() => {
+                map.invalidateSize(true);
+            }, 100);
+
+            // Appliquer les filtres sur clic
+            document.getElementById('apply-filters').addEventListener('click', () => {
+                applyFilters();
+                map.invalidateSize(true); // Forcer la mise à jour après application des filtres
+            });
+        });
+    </script>
+</body>
+</html>

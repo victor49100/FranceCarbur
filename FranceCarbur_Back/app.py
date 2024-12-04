@@ -24,77 +24,115 @@ DATABASE_CONFIG = {
     'sslmode': os.getenv('DB_SSLMODE')
 }
 
-# URL et chemin pour le fichier GeoJSON
+# Fonction pour télécharger et mettre en cache le fichier GeoJSON
 geojson_url = "https://www.data.gouv.fr/fr/datasets/r/c465b7f9-f2d7-4e32-a575-d9d69494d112"
-geojson_path = "static/data/geojson_cache.geojson"
 
-# Fonction pour télécharger le fichier GeoJSON si nécessaire
+
 def download_geojson():
+    geojson_path = "static/data/geojson_cache.geojson"
     if not os.path.exists(geojson_path):
         response = requests.get(geojson_url)
         with open(geojson_path, 'wb') as f:
             f.write(response.content)
+    return geojson_path
 
-# Route pour afficher la carte avec clustering des stations
-@app.route('/map')
+
+# Fonction pour télécharger et mettre en cache le fichier GeoJSON
+def download_geojson():
+    geojson_path = "static/data/geojson_cache.geojson"
+    if not os.path.exists(geojson_path):
+        response = requests.get(geojson_url)
+        with open(geojson_path, 'wb') as f:
+            f.write(response.content)
+    return geojson_path
+
+
+@app.route('/geojson-data', methods=['GET'])
+def get_geojson_data():
+    geojson_path = download_geojson()
+    with open(geojson_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return jsonify(data)
+
+
+
+@app.route('/map', methods=['GET', 'POST'])
 def show_map():
-    download_geojson()
+    geojson_path = download_geojson()
+    map_path = "static/generated_map.html"
 
-    # Création de la carte centrée sur la France
+    # Liste des carburants disponibles
+    all_fuels = ['SP95', 'SP98', 'Gazole', 'E10', 'GPL', 'E85']
+
+    # Récupération des carburants sélectionnés
+    selected_fuels = request.form.getlist('fuel_types') if request.method == 'POST' else all_fuels
+
+    # Création de la carte
     france_map = folium.Map(location=[46.603354, 1.888334], zoom_start=6)
-
-    # Création du cluster
     marker_cluster = MarkerCluster().add_to(france_map)
 
-    # Lecture du fichier GeoJSON
+    # Lecture des données GeoJSON
     with open(geojson_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # Ajout des marqueurs avec des popups dynamiques
+    # Boucle sur les données pour ajouter les marqueurs
     for feature in data['features']:
         coords = feature['geometry']['coordinates'][1], feature['geometry']['coordinates'][0]
         station_name = feature['properties'].get('nom', 'Station de carburant')
-        prix_raw = feature['properties'].get('prix')
 
-        # Traitement des prix
-        prix_list = []
+        prix_raw = feature['properties'].get('prix')
         if prix_raw:
             try:
                 prix_list = json.loads(prix_raw)
             except json.JSONDecodeError:
-                pass
+                prix_list = []
+        else:
+            prix_list = []
 
         prix_info = '<ul style="list-style-type:none; padding: 0;">'
-        if prix_list:
-            for prix in prix_list:
-                if isinstance(prix, dict):
-                    nom_carburant = prix.get('@nom', 'Inconnu')
-                    valeur = prix.get('@valeur', None)
+        display_station = False
+
+        for prix in prix_list:
+            if isinstance(prix, dict):
+                nom_carburant = prix.get('@nom', 'Inconnu')
+                valeur = prix.get('@valeur', None)
+
+                # Affiche uniquement les carburants sélectionnés
+                if nom_carburant in selected_fuels:
+                    display_station = True
                     if valeur:
                         prix_info += f'<li style="padding: 5px; color: green; font-weight: bold;">{nom_carburant}: {valeur} €/L</li>'
                     else:
                         prix_info += f'<li style="padding: 5px; color: gray; text-decoration: line-through;">{nom_carburant}: Indisponible</li>'
-        else:
-            prix_info += '<li style="color: red;">Prix non disponible</li>'
         prix_info += '</ul>'
 
-        popup_content = f"""
-            <div class="popup-content">
-                <b>{station_name}</b>
-                {prix_info}
-            </div>
-        """
+        if display_station:
+            popup_content = f"""
+                <div class="popup-content">
+                    <b>{station_name}</b>
+                    {prix_info}
+                    <button class="btn btn-primary btn-sm mt-2" onclick="getDirections({coords[0]}, {coords[1]})">
+                        Itinéraire
+                    </button>
+                </div>
+            """
+            folium.Marker(
+                location=coords,
+                popup=folium.Popup(popup_content, max_width=300, min_width=250)
+            ).add_to(marker_cluster)
 
-        # Ajout du marqueur au cluster
-        folium.Marker(
-            location=coords,
-            popup=folium.Popup(popup_content, max_width=300, min_width=250)
-        ).add_to(marker_cluster)
+    # Sauvegarde de la carte
+    france_map.save(map_path)
 
-    # Retourner la carte au format HTML
-    return france_map._repr_html_()
+    return render_template('map.html', map_file=map_path, fuels=all_fuels, selected_fuels=selected_fuels)
+
+
+
+
+
 
 # Fonctions pour la gestion de la base de données
+
 def fetch_user_by_id(user_id):
     try:
         conn = psycopg2.connect(**DATABASE_CONFIG)
@@ -108,6 +146,7 @@ def fetch_user_by_id(user_id):
         return {'error': f'Erreur de connexion : {e}'}
     except Exception as e:
         return {'error': f'Une erreur s\'est produite : {e}'}
+
 
 def update_newPassword_by_id(id, newPassword):
     try:
@@ -123,10 +162,13 @@ def update_newPassword_by_id(id, newPassword):
     except Exception as e:
         return {'error': f'Une erreur s\'est produite : {e}'}
 
-# Routes principales
+
+# ROUTES
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('home.html')
+
 
 @app.route('/api/user', methods=['GET'])
 def get_user():
@@ -150,10 +192,12 @@ def get_user():
 
     return jsonify(user_data)
 
+
 @app.route('/api/user/updateMDP', methods=['GET', 'PUT'])
 def update_password():
     args = request.args
     user_id = args.get('user_id')
+
     new_password = args.get('new_password')
     salt = 'sel'
     dataBase_password = new_password + salt
@@ -165,6 +209,7 @@ def update_password():
             return jsonify(update), 404
         return jsonify({'OK': 'Changement réussi'})
     return jsonify({'error': 'Méthode non autorisée'}), 405
+
 
 if __name__ == '__main__':
     app.run(debug=True)

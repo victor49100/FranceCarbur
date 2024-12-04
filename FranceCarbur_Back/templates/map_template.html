@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte avec filtres</title>
+    <title>Carte avec Filtres</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
     <style>
         .filter-bar {
@@ -57,7 +57,8 @@
         }).addTo(map);
 
         // Données des stations injectées depuis Flask
-        const stations = {{ stations | safe }};
+        const stations = {{ stations | tojson }};
+        console.log("Stations chargées :", stations);
 
         // Gestion des filtres
         const filters = {
@@ -72,14 +73,12 @@
         // Création d'un groupe de marqueurs
         const markerGroup = L.layerGroup().addTo(map);
 
-        // Fonction pour ajouter les marqueurs filtrés
+        // Fonction pour mettre à jour les marqueurs
         const updateMarkers = () => {
-            // Nettoyer les anciens marqueurs
-            markerGroup.clearLayers();
+            markerGroup.clearLayers(); // Nettoyer les anciens marqueurs
 
-            // Ajouter les stations correspondant aux filtres
             stations.forEach(station => {
-                const prix = station.prix;
+                const prix = station.carburants;
                 const hasAvailableFuel = prix.some(fuel =>
                     filters[fuel['@nom']] && fuel['@valeur']
                 );
@@ -104,12 +103,12 @@
         // Initialisation des marqueurs
         updateMarkers();
 
-        // Écouteurs pour les changements de filtres
+        // Écouteurs pour les filtres
         document.querySelectorAll('.filter-bar input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 const fuelType = checkbox.id.replace('filter-', '');
                 filters[fuelType] = checkbox.checked;
-                updateMarkers();
+                updateMarkers(); // Réactualiser les marqueurs
             });
         });
     </script>
