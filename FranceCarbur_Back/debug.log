@@ -1,0 +1,62 @@
+2024-12-07 23:38:55,654 - WARNING -  * Debugger is active!
+2024-12-07 23:38:55,661 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:39:12,452 - INFO -  * Detected change in 'D:\\Cours_master\\Architecture_de_l_information\\GIT\\FranceCarbur\\FranceCarbur_Back\\app.py', reloading
+2024-12-07 23:39:13,570 - WARNING -  * Debugger is active!
+2024-12-07 23:39:13,577 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:40:07,178 - INFO -  * Detected change in 'D:\\Cours_master\\Architecture_de_l_information\\GIT\\FranceCarbur\\FranceCarbur_Back\\app.py', reloading
+2024-12-07 23:40:08,477 - WARNING -  * Debugger is active!
+2024-12-07 23:40:08,483 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:41:18,534 - INFO -  * Detected change in 'D:\\Cours_master\\Architecture_de_l_information\\GIT\\FranceCarbur\\FranceCarbur_Back\\app.py', reloading
+2024-12-07 23:41:19,762 - WARNING -  * Debugger is active!
+2024-12-07 23:41:19,768 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:41:59,041 - INFO -  * Detected change in 'D:\\Cours_master\\Architecture_de_l_information\\GIT\\FranceCarbur\\FranceCarbur_Back\\app.py', reloading
+2024-12-07 23:42:00,448 - WARNING -  * Debugger is active!
+2024-12-07 23:42:00,455 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:42:02,674 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-07 23:42:02,674 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-07 23:42:02,676 - INFO -  * Restarting with stat
+2024-12-07 23:42:03,673 - WARNING -  * Debugger is active!
+2024-12-07 23:42:03,679 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:42:13,096 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-07 23:42:13,096 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-07 23:42:13,098 - INFO -  * Restarting with stat
+2024-12-07 23:42:14,029 - WARNING -  * Debugger is active!
+2024-12-07 23:42:14,035 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:49:28,553 - WARNING -  * Debugger is active!
+2024-12-07 23:49:28,559 - INFO -  * Debugger PIN: 254-376-937
+2024-12-07 23:49:43,558 - INFO - 127.0.0.1 - - [07/Dec/2024 23:49:43] "GET /map HTTP/1.1" 200 -
+2024-12-07 23:49:43,666 - INFO - 127.0.0.1 - - [07/Dec/2024 23:49:43] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-07 23:49:43,670 - INFO - 127.0.0.1 - - [07/Dec/2024 23:49:43] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-07 23:49:44,180 - INFO - 127.0.0.1 - - [07/Dec/2024 23:49:44] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-07 23:51:03,418 - INFO - 127.0.0.1 - - [07/Dec/2024 23:51:03] "GET /map HTTP/1.1" 200 -
+2024-12-07 23:51:03,477 - INFO - 127.0.0.1 - - [07/Dec/2024 23:51:03] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-07 23:51:03,513 - INFO - 127.0.0.1 - - [07/Dec/2024 23:51:03] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-07 23:51:03,967 - INFO - 127.0.0.1 - - [07/Dec/2024 23:51:03] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-07 23:54:59,994 - INFO - 127.0.0.1 - - [07/Dec/2024 23:54:59] "GET /map HTTP/1.1" 200 -
+2024-12-07 23:55:00,031 - INFO - 127.0.0.1 - - [07/Dec/2024 23:55:00] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-07 23:55:00,050 - INFO - 127.0.0.1 - - [07/Dec/2024 23:55:00] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-07 23:55:00,060 - INFO - 127.0.0.1 - - [07/Dec/2024 23:55:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-12-07 23:55:00,484 - INFO - 127.0.0.1 - - [07/Dec/2024 23:55:00] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-07 23:57:13,132 - INFO - 127.0.0.1 - - [07/Dec/2024 23:57:13] "GET /map HTTP/1.1" 200 -
+2024-12-07 23:57:13,174 - INFO - 127.0.0.1 - - [07/Dec/2024 23:57:13] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-07 23:57:13,191 - INFO - 127.0.0.1 - - [07/Dec/2024 23:57:13] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-07 23:57:13,661 - INFO - 127.0.0.1 - - [07/Dec/2024 23:57:13] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-07 23:58:18,729 - INFO - 127.0.0.1 - - [07/Dec/2024 23:58:18] "GET /map HTTP/1.1" 200 -
+2024-12-07 23:58:18,758 - INFO - 127.0.0.1 - - [07/Dec/2024 23:58:18] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-07 23:58:18,773 - INFO - 127.0.0.1 - - [07/Dec/2024 23:58:18] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-07 23:58:19,197 - INFO - 127.0.0.1 - - [07/Dec/2024 23:58:19] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-08 00:00:30,751 - INFO - 127.0.0.1 - - [08/Dec/2024 00:00:30] "GET /map HTTP/1.1" 200 -
+2024-12-08 00:00:30,776 - INFO - 127.0.0.1 - - [08/Dec/2024 00:00:30] "GET /static/style.css HTTP/1.1" 200 -
+2024-12-08 00:00:30,799 - INFO - 127.0.0.1 - - [08/Dec/2024 00:00:30] "[36mGET /static/icone/siteIcon__.png HTTP/1.1[0m" 304 -
+2024-12-08 00:00:31,224 - INFO - 127.0.0.1 - - [08/Dec/2024 00:00:31] "GET /static/generated_map.html HTTP/1.1" 200 -
+2024-12-08 00:00:48,260 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-08 00:00:48,260 - INFO - [33mPress CTRL+C to quit[0m
+2024-12-08 00:00:48,262 - INFO -  * Restarting with stat
+2024-12-08 00:00:49,281 - WARNING -  * Debugger is active!
+2024-12-08 00:00:49,288 - INFO -  * Debugger PIN: 254-376-937
+2024-12-08 00:01:01,503 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-12-08 00:01:01,503 - INFO - [33mPress CTRL+C to quit[0m

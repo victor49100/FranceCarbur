@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte des Stations</title>
+    <title>FranceCarbur</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/leaflet.markercluster.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.Default.css" />
-    <style>
-        #map {
-            height: 600px;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 <body>
-    <div class="container mt-4">
-        <h1>Carte des Stations de Carburant</h1>
-        <form method="POST" action="/map">
+    <div class="container">
+        <div class="header">
+            <h1 class="title">France Carbur</h1>
+            <img src="/static/icone/siteIcon__.png" alt="France Carbur Logo" class="logo">
+        </div>
+        <form method="POST" action="/map" class="filters">
             <h4>Filtres :</h4>
-            <div class="form-check">
+            <div class="d-flex flex-wrap gap-2">
                 {% for fuel in fuels %}
-                <div class="mb-2">
+                <div class="form-check form-check-inline">
                     <input
                         class="form-check-input"
                         type="checkbox"
@@ -37,8 +36,10 @@
             </div>
             <button type="submit" class="btn btn-primary mt-3">Appliquer les filtres</button>
         </form>
-        <div id="map" class="mt-4">
-            <iframe src="{{ map_file }}" width="100%" height="600px" style="border: none;"></iframe>
+        <div id="map-container">
+            <iframe src="{{ map_file }}"></iframe>
+                <button id="recenter-btn" title="Recentrer sur ma position">⌖</button>
+
         </div>
     </div>
     <script>
@@ -46,63 +47,132 @@
         let routeLayer = null;
 
         // Utilisez l'API de géolocalisation pour obtenir la position de l'utilisateur
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        userLocation = [position.coords.latitude, position.coords.longitude];
-                        console.log("Localisation actuelle :", userLocation);
-                        alert("Localisation obtenue : " + userLocation); // DEBUG
-                    },
-                    error => {
-                        console.error("Erreur de géolocalisation :", error);
-                        alert("Impossible d'obtenir votre localisation. Vérifiez les paramètres de votre navigateur.");
-                    }
-                );
-            } else {
-                alert("La géolocalisation n'est pas prise en charge par votre navigateur.");
-            }
-        }
+let userLocationReady = false;
 
+async function loadStationsFromGeoJSON() {
+    try {
+        const response = await fetch('/geojson-data');
+        if (!response.ok) throw new Error("Erreur lors de la récupération des données GeoJSON.");
 
-        // Fonction pour obtenir l'itinéraire entre l'utilisateur et la station
-       async function getDirections(lat, lon) {
-            console.log("Calcul de l'itinéraire pour :", lat, lon); // DEBUG
+        const data = await response.json();
 
-            if (!userLocation) {
-                alert("Veuillez activer la géolocalisation pour calculer l'itinéraire.");
-                return;
-            }
+        data.features.forEach(feature => {
+            const coords = feature.geometry.coordinates; // [lon, lat]
+            const properties = feature.properties;
 
-            const apiKey = "VOTRE_CLE_API"; // Remplacez par votre clé API
-            const directionsUrl = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${userLocation[1]},${userLocation[0]}&end=${lon},${lat}`;
+            const popupContent = `
+                <b>${properties.nom || "Station de carburant"}</b><br>
+                <button onclick="getDirections(${coords[1]}, ${coords[0]})">Itinéraire</button>
+            `;
 
-            try {
-                console.log("URL de l'itinéraire :", directionsUrl); // DEBUG
-                const response = await fetch(directionsUrl);
-                if (!response.ok) throw new Error("Erreur lors de la récupération de l'itinéraire.");
-                const data = await response.json();
-                console.log("Données de l'itinéraire :", data); // DEBUG
-
-                const routeCoords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-
-                if (routeLayer) {
-                    map.removeLayer(routeLayer);
-                }
-
-                routeLayer = L.polyline(routeCoords, { color: 'blue' }).addTo(map);
-                map.fitBounds(routeLayer.getBounds());
-            } catch (error) {
-                console.error("Erreur lors du calcul de l'itinéraire :", error);
-                alert("Impossible de calculer l'itinéraire. Vérifiez votre connexion ou réessayez plus tard.");
-            }
-        }
-
-
-        // Initialisation de la localisation utilisateur au chargement de la page
-        document.addEventListener('DOMContentLoaded', () => {
-            getUserLocation();
+            const marker = L.marker([coords[1], coords[0]]).bindPopup(popupContent);
+            markerCluster.addLayer(marker);
         });
+
+        map.addLayer(markerCluster);
+    } catch (error) {
+        console.error("Erreur lors du chargement des stations :", error);
+        alert("Impossible de charger les stations.");
+    }
+}
+
+
+// Ajouter la carte Leaflet
+let map = L.map('map').setView([45.7342976, 3.3357824], 13); // Point de départ par défaut
+
+// Charger les tuiles de OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Variables pour la localisation de l'utilisateur
+let userLocation = null;
+let routingControl = null;
+
+// Fonction pour récupérer la position de l'utilisateur
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                userLocation = [position.coords.latitude, position.coords.longitude];
+                console.log("Localisation utilisateur :", userLocation);
+
+                // Ajouter un marqueur pour la position utilisateur
+                L.marker(userLocation, { title: "Votre position" })
+                    .addTo(map)
+                    .bindPopup("Vous êtes ici")
+                    .openPopup();
+
+                // Centrer la carte sur la position utilisateur
+                map.setView(userLocation, 13);
+            },
+            error => {
+                console.error("Erreur lors de la localisation :", error);
+                alert("Impossible de récupérer votre localisation.");
+            }
+        );
+    } else {
+        alert("La géolocalisation n'est pas prise en charge par votre navigateur.");
+    }
+}
+
+// Fonction pour afficher l'itinéraire vers une station choisie
+function getDirectionsToStation(lat, lon) {
+    if (!userLocation) {
+        alert("Localisation utilisateur non disponible. Veuillez activer la géolocalisation.");
+        return;
+    }
+
+    // Supprimez l'itinéraire précédent s'il existe
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+
+    // Ajouter l'itinéraire avec Leaflet Routing Machine
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(userLocation[0], userLocation[1]), // Position utilisateur
+            L.latLng(lat, lon) // Coordonnées de la station
+        ],
+        routeWhileDragging: true,
+        geocoder: L.Control.Geocoder.nominatim(), // Optionnel : pour trouver des adresses
+        show: true
+    }).addTo(map);
+}
+
+// Initialiser la localisation utilisateur au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    getUserLocation();
+});
+
+// Exemple d'appel pour générer l'itinéraire vers une station
+// Vous pouvez appeler `getDirectionsToStation` dynamiquement en cliquant sur une station
+// Par exemple :
+document.getElementById('example-button').addEventListener('click', () => {
+    getDirectionsToStation(45.725200446874, 3.33879322024); // Coordonnées de la station choisie
+});
+
+
+function onStationMarkerClick(lat, lon) {
+    getDirectionsToStation(lat, lon);
+}
+
+// Exemple de création de marqueurs pour les stations
+const stations = [
+    { name: "Station 1", coords: [45.725200446874, 3.33879322024] },
+    { name: "Station 2", coords: [45.728543, 3.333567] }
+];
+
+stations.forEach(station => {
+    L.marker(station.coords)
+        .addTo(map)
+        .bindPopup(`<b>${station.name}</b><br><button onclick="onStationMarkerClick(${station.coords[0]}, ${station.coords[1]})">Itinéraire</button>`);
+});
+
+
+
     </script>
+
+
 </body>
 </html>

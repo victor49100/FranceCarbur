@@ -1,0 +1,183 @@
+/* Style général de la page */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #000428, #004e92); /* Dégradé sombre */
+    color: #ffffff;
+}
+
+/* Conteneur principal */
+.container {
+    padding: 20px;
+}
+
+/* En-tête avec effet néon */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.title {
+    font-size: 2.5rem;
+    color: #00e6e6;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00e6e6, 0 0 20px #00cccc, 0 0 30px #00b3b3, 0 0 40px #009999;
+    letter-spacing: 2px;
+}
+
+.logo {
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 10px #00e6e6, 0 0 20px #00cccc, 0 0 30px #00b3b3, 0 0 40px #009999;
+    margin-left: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Styles pour le formulaire de filtres */
+form h4 {
+    color: #00ffcc;
+    text-shadow: 0 0 5px #00ffcc, 0 0 10px #009999;
+    font-weight: bold;
+}
+
+.form-check-input:checked {
+    background-color: #00ffcc;
+    border-color: #00ffcc;
+    box-shadow: 0 0 5px #00ffcc, 0 0 10px #00cc99;
+}
+
+.btn-primary {
+    background-color: #00e6e6;
+    border-color: #00cccc;
+    color: #000000;
+    box-shadow: 0 0 10px #00e6e6, 0 0 20px #00cccc, 0 0 30px #00b3b3;
+}
+
+.btn-primary:hover {
+    background-color: #00cccc;
+    border-color: #00b3b3;
+}
+
+/* Carte */
+#map-container {
+    height: calc(100vh - 250px); /* Ajuste la hauteur de la carte */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 230, 230, 0.6), 0 0 20px rgba(0, 204, 204, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Pied de page pour un effet néon */
+footer {
+    margin-top: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 5px #ffffff, 0 0 10px #bbbbbb;
+    font-size: 0.9rem;
+}
+
+
+/* Conteneur des filtres */
+.filters {
+    background: rgba(0, 36, 61, 0.8); /* Arrière-plan transparent légèrement sombre */
+    border: 2px solid #00cccc; /* Bordure néon */
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px #00cccc, 0 0 25px #009999, 0 0 35px #006666;
+}
+
+/* Titre des filtres */
+.filters h4 {
+    color: #00cccc; /* Couleur plus foncée */
+    text-shadow: 0 0 8px #00b3b3, 0 0 16px #009999;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Style des cases à cocher */
+.filters .form-check-input {
+    accent-color: #00e6e6; /* Personnalisation des cases cochées */
+    box-shadow: 0 0 5px #00cccc, 0 0 10px #009999;
+}
+
+/* Style des étiquettes */
+.filters .form-check-label {
+    font-size: 1.1rem;
+    color: #00cccc;
+    text-shadow: 0 0 5px #00cccc, 0 0 10px #009999;
+}
+
+/* Bouton d'application des filtres */
+.filters .btn-primary {
+    background-color: #00cccc;
+    border-color: #009999;
+    color: #000000;
+    box-shadow: 0 0 10px #00cccc, 0 0 20px #009999;
+}
+
+.filters .btn-primary:hover {
+    background-color: #009999;
+    border-color: #007a7a;
+    box-shadow: 0 0 15px #009999, 0 0 25px #007a7a;
+}
+
+
+.location-marker {
+    background-color: blue;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    box-shadow: 0 0 5px blue;
+}
+
+
+.user-location-marker {
+    background-color: #00e6e6;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #00cccc;
+    box-shadow: 0 0 10px #00e6e6, 0 0 20px #00cccc;
+}
+
+
+#recenter-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000; /* Pour s'assurer qu'il reste au-dessus de la carte */
+    background-color: #00e6e6;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px #00e6e6, 0 0 20px #00cccc;
+    transition: transform 0.2s;
+}
+
+#recenter-btn:hover {
+    transform: scale(1.1);
+    background-color: #00cccc;
+    box-shadow: 0 0 15px #00e6e6, 0 0 25px #00cccc;
+}

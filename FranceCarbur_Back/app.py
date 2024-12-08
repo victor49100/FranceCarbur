@@ -8,6 +8,19 @@ import requests
 import folium
 from folium.plugins import MarkerCluster
 import json
+from polyline import decode
+
+
+
+
+def decode_polyline(polyline):
+    """Décoder une polyline encodée en une liste de coordonnées."""
+    try:
+        decoded = decode(polyline)
+        return decoded
+    except Exception as e:
+        raise
+
 
 # Chargement des variables d'environnement à partir du fichier .env
 load_dotenv()
@@ -55,6 +68,61 @@ def get_geojson_data():
     return jsonify(data)
 
 
+@app.route('/get-directions', methods=['POST'])
+def get_directions():
+    try:
+        # Récupération des données envoyées par le frontend
+        data = request.json
+
+        if 'user_location' not in data or 'station_location' not in data:
+            return jsonify({'error': 'Données manquantes : user_location ou station_location'}), 400
+
+        user_lat, user_lon = data['user_location']
+        station_lat, station_lon = data['station_location']
+
+        # Préparation de la requête API
+        payload = {"coordinates": [[user_lon, user_lat], [station_lon, station_lat]]}
+
+        directions_url = f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf6248814f8101c5764fc7be22b2a75214b4ff"
+        response = requests.post(directions_url, json=payload)
+
+        if response.status_code != 200:
+            return jsonify({'error': 'Erreur lors de la récupération de l\'itinéraire.'}), response.status_code
+
+        route_data = response.json()
+
+        # Extraction des coordonnées de l'itinéraire
+        if 'routes' in route_data and len(route_data['routes']) > 0:
+            first_route = route_data['routes'][0]
+            if 'geometry' in first_route:
+                polyline_str = first_route['geometry']
+                try:
+                    route_coords = decode(polyline_str)
+                    return jsonify({'route': route_coords})
+                except Exception as e:
+                    return jsonify({'error': 'Erreur de décodage des coordonnées.'}), 500
+            else:
+                return jsonify({'error': 'Structure de données inattendue.'}), 400
+        else:
+            return jsonify({'error': 'Aucun itinéraire trouvé.'}), 404
+
+    except Exception as e:
+        return jsonify({'error': 'Une erreur interne s\'est produite.', 'details': str(e)}), 500
+
+
+
+
+
+
+def decode_polyline(polyline):
+    """Décoder une polyline encodée en une liste de coordonnées."""
+    return polyline.decode(polyline)
+
+
+
+
+
+
 
 @app.route('/map', methods=['GET', 'POST'])
 def show_map():
@@ -68,7 +136,12 @@ def show_map():
     selected_fuels = request.form.getlist('fuel_types') if request.method == 'POST' else all_fuels
 
     # Création de la carte
-    france_map = folium.Map(location=[46.603354, 1.888334], zoom_start=6)
+    france_map = folium.Map(
+        location=[46.603354, 1.888334],
+        zoom_start=6,
+        control_scale=True,
+        id="map"
+    )
     marker_cluster = MarkerCluster().add_to(france_map)
 
     # Lecture des données GeoJSON
@@ -121,7 +194,84 @@ def show_map():
                 popup=folium.Popup(popup_content, max_width=300, min_width=250)
             ).add_to(marker_cluster)
 
-    # Sauvegarde de la carte
+    # Ajout de scripts personnalisés
+    custom_script = """
+    <script>
+        let userLocation = null;
+        let routeLayer = null;
+
+        // Récupérer l'objet Leaflet map généré par Folium
+        var map = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            getUserLocation();
+
+            // Obtenez l'instance Leaflet associée à la carte Folium
+            map = document.getElementById('map')._leaflet_map;
+            if (!map) {
+                console.error("Carte Leaflet introuvable !");
+            } else {
+                console.log("Carte Leaflet chargée :", map);
+            }
+        });
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userLocation = [position.coords.latitude, position.coords.longitude];
+                        console.log("Localisation actuelle :", userLocation);
+                    },
+                    error => {
+                        alert("Impossible d'obtenir votre localisation. Vérifiez les paramètres de votre navigateur.");
+                    }
+                );
+            } else {
+                alert("La géolocalisation n'est pas prise en charge par votre navigateur.");
+            }
+        }
+
+        async function getDirections(lat, lon) {
+            if (!userLocation) {
+                alert("Veuillez activer la géolocalisation pour calculer l'itinéraire.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/get-directions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_location: userLocation,
+                        station_location: [lat, lon]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération de l'itinéraire.");
+                }
+
+                const data = await response.json();
+                const routeCoords = data.route;
+
+                if (routeLayer) {
+                    map.removeLayer(routeLayer);
+                }
+
+                routeLayer = L.polyline(routeCoords, { color: 'blue' }).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+            } catch (error) {
+                console.error("Erreur lors du calcul de l'itinéraire :", error);
+                alert("Impossible de calculer l'itinéraire.");
+            }
+        }
+    </script>
+    """
+
+
+    # Sauvegarde de la carte avec le script
+    france_map.get_root().html.add_child(folium.Element(custom_script))
     france_map.save(map_path)
 
     return render_template('map.html', map_file=map_path, fuels=all_fuels, selected_fuels=selected_fuels)
