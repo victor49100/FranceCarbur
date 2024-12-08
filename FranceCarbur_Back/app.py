@@ -9,8 +9,7 @@ import folium
 from folium.plugins import MarkerCluster
 import json
 from polyline import decode
-from threading import Timer
-import webbrowser
+from flask import redirect
 
 
 
@@ -320,7 +319,7 @@ def update_newPassword_by_id(id, newPassword):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('home.html')
+    return redirect('/map')
 
 
 @app.route('/api/user', methods=['GET'])
@@ -363,10 +362,7 @@ def update_password():
         return jsonify({'OK': 'Changement réussi'})
     return jsonify({'error': 'Méthode non autorisée'}), 405
 
-def open_browser():
-    # Utilise une pause pour s'assurer que le serveur est démarré
-    webbrowser.open_new("http://127.0.0.1:5000/map")
+
 
 if __name__ == '__main__':
-    Timer(1.5, open_browser).start()  # Augmentez le délai si nécessaire
     app.run(debug=True)
