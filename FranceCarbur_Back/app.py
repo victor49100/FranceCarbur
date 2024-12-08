@@ -9,6 +9,9 @@ import folium
 from folium.plugins import MarkerCluster
 import json
 from polyline import decode
+from threading import Timer
+import webbrowser
+
 
 
 
@@ -360,6 +363,10 @@ def update_password():
         return jsonify({'OK': 'Changement réussi'})
     return jsonify({'error': 'Méthode non autorisée'}), 405
 
+def open_browser():
+    # Utilise une pause pour s'assurer que le serveur est démarré
+    webbrowser.open_new("http://127.0.0.1:5000/map")
 
 if __name__ == '__main__':
+    Timer(1.5, open_browser).start()  # Augmentez le délai si nécessaire
     app.run(debug=True)
